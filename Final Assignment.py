@@ -37,7 +37,7 @@
 # Use the version as per your python version.
 # 
 
-# In[1]:
+# In[3]:
 
 
 get_ipython().system('pip install yfinance')
@@ -46,7 +46,7 @@ get_ipython().system('pip install nbformat')
 get_ipython().system('pip install --upgrade plotly')
 
 
-# In[2]:
+# In[4]:
 
 
 import yfinance as yf
@@ -57,7 +57,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-# In[3]:
+# In[34]:
 
 
 import plotly.io as pio
@@ -67,7 +67,7 @@ pio.renderers.default = "iframe"
 # In Python, you can ignore warnings using the warnings module. You can use the filterwarnings function to filter or ignore specific warning messages or categories.
 # 
 
-# In[4]:
+# In[43]:
 
 
 import warnings
@@ -102,6 +102,7 @@ def make_graph(stock_data, revenue_data, stock):
     from IPython.display import display, HTML
     fig_html = fig.to_html()
     display(HTML(fig_html))
+    
 
 
 # Use the make_graph function that we’ve already defined. You’ll need to invoke it in questions 5 and 6 to display the graphs and create the dashboard. 
@@ -114,7 +115,7 @@ def make_graph(stock_data, revenue_data, stock):
 # Using the `Ticker` function enter the ticker symbol of the stock we want to extract data on to create a ticker object. The stock is Tesla and its ticker symbol is `TSLA`.
 # 
 
-# In[6]:
+# In[24]:
 
 
 import yfinance as yf
@@ -125,20 +126,22 @@ tsla=yf.Ticker("tsla")
 # Using the ticker object and the function `history` extract stock information and save it in a dataframe named `tesla_data`. Set the `period` parameter to ` "max" ` so we get information for the maximum amount of time.
 # 
 
-# In[22]:
+# In[36]:
 
 
-tsla_data = tsla.history(period="max") 
+tesla_data = tsla.history(period="max") 
+
 
 
 # **Reset the index** using the `reset_index(inplace=True)` function on the tesla_data DataFrame and display the first five rows of the `tesla_data` dataframe using the `head` function. Take a screenshot of the results and code from the beginning of Question 1 to the results below.
 # 
 
-# In[23]:
+# In[37]:
 
 
 tsla_data.reset_index(inplace=True)
 tsla_data.head()
+
 
 
 # ## Question 2: Use Webscraping to Extract Tesla Revenue Data
@@ -147,7 +150,7 @@ tsla_data.head()
 # Use the `requests` library to download the webpage https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/revenue.htm Save the text of the response as a variable named `html_data`.
 # 
 
-# In[7]:
+# In[27]:
 
 
 url = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/revenue.htm"
@@ -155,13 +158,15 @@ url = "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDev
 html_data = requests.get(url).text
 
 
+
 # Parse the html data using `beautiful_soup` using parser i.e `html5lib` or `html.parser`.
 # 
 
-# In[8]:
+# In[28]:
 
 
 soup = BeautifulSoup(html_data,"html.parser")
+
 
 
 # Using `BeautifulSoup` or the `read_html` function extract the table with `Tesla Revenue` and store it into a dataframe named `tesla_revenue`. The dataframe should have columns `Date` and `Revenue`.
@@ -200,63 +205,65 @@ soup = BeautifulSoup(html_data,"html.parser")
 # </details>
 # 
 
-# In[16]:
+# In[29]:
 
 
 # Find all tables
-tesla tables = soup. find all ('table")
-                               
-# Initialize index to store the relevant table
-tesla table index = None
+tesla_tables = soup.find_all('table')
+
+tesla_table_index = None # Initialize before the loop
 
 # Search for the table containing "Tesla Quarterly Revenue"
-for index, table in enumerate (tesla tables):
-    if "Tesla Quarterly Revenue" in str (table): # Fixed spelling mistake
-        tesla table index = index
+for index, table in enumerate (tesla_tables): 
+    if "Tesla Quarterly Revenue" in str(table):
+        tesla_table_index = index
         break # Stop once the table is found
-        
+
 # Raise an error if the table was not found
-if tesla table index is None:
-    raise ValueError ("Table with 'Tesla Quarterly Revenue' not found')
-    
+if tesla_table_index is None:
+    raise ValueError("Table with 'Tesla Quarterly Revenue' not found")
+
 # Extract table rows and store in a list (instead of using .append())
 data = []
-for row in tesla tables [tesla table index].tbody.find all ("tr"):
-    col = row.find all ("td") # Fixed 'col' typo
+for row in tesla_tables[tesla_table_index].tbody.find_all("tr"):
+    col = row.find_all("td")
     if col: # Ensure row has data
-        date = col [0].text.strip() # Clean whitespace
-        revenue = co1 (1].text.strip().replace ("$", "").replace (",", "'") # Remove $ and ,
-        data.append ("Date": date, "Revenue": revenue)) # Append to list
-        
+        date = col[0].text.strip() # Clean whitespace 
+        revenue = col[1].text.strip().replace("$", "").replace(",", "'") # Remove $ and ,
+        data.append({"Date": date, "Revenue": revenue}) # Append to list
+
 # Convert list to DataFrame
-tesla revenue = pd.DataFrame(data)
+tesla_revenue = pd.DataFrame(data)
 
 # Display the extracted data
 print (tesla_revenue.head())
 
 
-# In[48]:
+# In[30]:
 
 
 tesla_revenue["Revenue"] = tesla_revenue['Revenue'].str.replace(',|\$',"")
 
 
+
 # Execute the following lines to remove an null or empty strings in the Revenue column.
 # 
 
-# In[49]:
+# In[31]:
 
 
 tesla_revenue.dropna(inplace=True)
 
 
+
 # Display the last 5 row of the `tesla_revenue` dataframe using the `tail` function. Take a screenshot of the results.
 # 
 
-# In[61]:
+# In[32]:
 
 
 tesla_revenue.head()
+
 
 
 # ## Question 3: Use yfinance to Extract Stock Data
@@ -265,7 +272,7 @@ tesla_revenue.head()
 # Using the `Ticker` function enter the ticker symbol of the stock we want to extract data on to create a ticker object. The stock is GameStop and its ticker symbol is `GME`.
 # 
 
-# In[57]:
+# In[20]:
 
 
 import yfinance as yf
@@ -276,7 +283,7 @@ gme=yf.Ticker("GME")
 # Using the ticker object and the function `history` extract stock information and save it in a dataframe named `gme_data`. Set the `period` parameter to ` "max" ` so we get information for the maximum amount of time.
 # 
 
-# In[58]:
+# In[21]:
 
 
 gme_data = gme.history(period="max")
@@ -285,7 +292,7 @@ gme_data = gme.history(period="max")
 # **Reset the index** using the `reset_index(inplace=True)` function on the gme_data DataFrame and display the first five rows of the `gme_data` dataframe using the `head` function. Take a screenshot of the results and code from the beginning of Question 3 to the results below.
 # 
 
-# In[20]:
+# In[22]:
 
 
 gme_data.reset_index(inplace=True)
@@ -298,7 +305,7 @@ gme_data.head()
 # Use the `requests` library to download the webpage https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html. Save the text of the response as a variable named `html_data_2`.
 # 
 
-# In[27]:
+# In[8]:
 
 
 url= "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-PY0220EN-SkillsNetwork/labs/project/stock.html"
@@ -309,10 +316,10 @@ html_data_2 = requests.get(url).text
 # Parse the html data using `beautiful_soup` using parser i.e `html5lib` or `html.parser`.
 # 
 
-# In[28]:
+# In[9]:
 
 
-soup=BeautifulSoup(html_data,"html.parser")
+soup = BeautifulSoup(html_data_2,"html.parser")
 
 
 # Using `BeautifulSoup` or the `read_html` function extract the table with `GameStop Revenue` and store it into a dataframe named `gme_revenue`. The dataframe should have columns `Date` and `Revenue`. Make sure the comma and dollar sign is removed from the `Revenue` column.
@@ -337,13 +344,14 @@ soup=BeautifulSoup(html_data,"html.parser")
 # </details>
 # 
 
-# In[59]:
+# In[13]:
 
 
 # Find all tables
 gme_tables = soup.find_all('table')
 
 gme_table_index = None # Initialize before the loop
+
 
 # Search for the table containing "GameStop Quarterly Revenue"
 for index, table in enumerate (gme_tables): 
@@ -371,14 +379,14 @@ gme_revenue = pd.DataFrame(data)
 print (gme_revenue.head())
 
 
-
 # Display the last five rows of the `gme_revenue` dataframe using the `tail` function. Take a screenshot of the results.
 # 
 
-# In[60]:
+# In[14]:
 
 
 gme_revenue.tail(5)
+
 
 
 # ## Question 5: Plot Tesla Stock Graph
@@ -398,9 +406,10 @@ gme_revenue.tail(5)
 # </details>
 # 
 
-# In[ ]:
+# In[45]:
 
 
+make_graph(tesla_data, tesla_revenue, 'Tesla')
 
 
 
@@ -421,9 +430,10 @@ gme_revenue.tail(5)
 # </details>
 # 
 
-# In[ ]:
+# In[44]:
 
 
+make_graph(gme_data, gme_revenue, 'GameStop')
 
 
 
