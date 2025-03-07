@@ -203,26 +203,36 @@ soup = BeautifulSoup(html_data,"html.parser")
 # In[16]:
 
 
-tesla_tables = soup.find_all('table')
+# Find all tables
+tesla tables = soup. find all ('table")
+                               
+# Initialize index to store the relevant table
+tesla table index = None
 
-tesla_table_index = None # Initialize before the loop
+# Search for the table containing "Tesla Quarterly Revenue"
+for index, table in enumerate (tesla tables):
+    if "Tesla Quarterly Revenue" in str (table): # Fixed spelling mistake
+        tesla table index = index
+        break # Stop once the table is found
+        
+# Raise an error if the table was not found
+if tesla table index is None:
+    raise ValueError ("Table with 'Tesla Quarterly Revenue' not found')
+    
+# Extract table rows and store in a list (instead of using .append())
+data = []
+for row in tesla tables [tesla table index].tbody.find all ("tr"):
+    col = row.find all ("td") # Fixed 'col' typo
+    if col: # Ensure row has data
+        date = col [0].text.strip() # Clean whitespace
+        revenue = co1 (1].text.strip().replace ("$", "").replace (",", "'") # Remove $ and ,
+        data.append ("Date": date, "Revenue": revenue)) # Append to list
+        
+# Convert list to DataFrame
+tesla revenue = pd.DataFrame(data)
 
-for index, table in enumerate (tesla_tables):
-    if "Tesla Ouarterly Revenue" in str(table):
-        tesla_table_index = index
-        break # Exit the loop once the table is found
-
-if tesla_table_index is None:
-    raise ValueError("Table with 'Tesla Quarterly Revenue' not found")
-
-tesla_revenue = pd.DataFrame (columns= ["Date", "Revenue"])
-
-for row in tesla_tables[tesla_table_index].tbody.find_all ("tr"):
-    col = row. find_all ("td")
-    if col:
-        date = co1[0].text
-        revenue = col[1].text.replace ("$", "").replace (",", "")
-        tesla_revenue = tesla_revenue.append ({"Date": date, "Revenue": revenue}, ignore_index=True)
+# Display the extracted data
+print (tesla_revenue.head())
 
 
 # In[48]:
@@ -330,21 +340,36 @@ soup=BeautifulSoup(html_data,"html.parser")
 # In[59]:
 
 
-gme_revenue = pd.DataFrame(columns=['Date', 'Revenue'])
+# Find all tables
+gme_tables = soup.find_all('table')
 
-for table in soup.find_all('table'):
+gme_table_index = None # Initialize before the loop
 
-    if ('GameStop Quarterly Revenue' in table.find('th').text):
-        rows = table.find_all('tr')
-        
-        for row in rows:
-            col = row.find_all('td')
-            
-            if col != []:
-                date = col[0].text
-                revenue = col[1].text.replace(',','').replace('$','')
+# Search for the table containing "GameStop Quarterly Revenue"
+for index, table in enumerate (gme_tables): 
+    if "GameStop Quarterly Revenue" in str(table):
+        gme_table_index = index
+        break # Stop once the table is found
 
-                gme_revenue = gme_revenue.append({"Date":date, "Revenue":revenue}, ignore_index=True)
+# Raise an error if the table was not found
+if gme_table_index is None:
+    raise ValueError("Table with 'GameStop Quarterly Revenue' not found")
+
+# Extract table rows and store in a list (instead of using .append())
+data = []
+for row in gme_tables[gme_table_index].tbody.find_all("tr"):
+    col = row.find_all("td")
+    if col: # Ensure row has data
+        date = col[0].text.strip() # Clean whitespace 
+        revenue = col[1].text.strip().replace("$", "").replace(",", "'") # Remove $ and ,
+        data.append({"Date": date, "Revenue": revenue}) # Append to list
+
+# Convert list to DataFrame
+gme_revenue = pd.DataFrame(data)
+
+# Display the extracted data
+print (gme_revenue.head())
+
 
 
 # Display the last five rows of the `gme_revenue` dataframe using the `tail` function. Take a screenshot of the results.
