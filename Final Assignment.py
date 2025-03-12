@@ -242,7 +242,8 @@ print (tesla_revenue.head())
 # In[30]:
 
 
-tesla_revenue["Revenue"] = tesla_revenue['Revenue'].str.replace(',|\$',"")
+tesla_revenue ["Revenue"] = tesla_revenue['Revenue'].str.replace (r" [, \$']", "", regex=True)
+
 
 
 
@@ -432,7 +433,7 @@ make_graph(tesla_data, tesla_revenue, 'Tesla')
 
 # In[44]:
 
-
+gme_revenue["Revenue"] = gme_revenue['Revenue'].replace({'\$': '', ',': ''}, regex=True)  
 make_graph(gme_data, gme_revenue, 'GameStop')
 
 
